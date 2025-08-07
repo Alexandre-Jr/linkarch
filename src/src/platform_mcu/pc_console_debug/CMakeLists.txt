@@ -1,5 +1,6 @@
 # Add libray linkarch_fsm
-add_library(linkarch_platform_mcu STATIC linkarch_platform_mcu_pcConsoleDebug_debug.c)
+add_library(linkarch_platform_mcu STATIC linkarch_platform_mcu_pcConsoleDebug_debug.c
+                                            linkarch_platform_mcu_pcConsoleDebug_mcuConfig.c)
 
 # Link the project target to the libraries 
 target_link_libraries(linkarch_platform_mcu PUBLIC )

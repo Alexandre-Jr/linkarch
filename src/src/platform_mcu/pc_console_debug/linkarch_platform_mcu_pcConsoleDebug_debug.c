@@ -1,3 +1,5 @@
+#include "linkarch_hal_debug.h"
+
 #include <stdio.h>
 #include <stdarg.h>
 

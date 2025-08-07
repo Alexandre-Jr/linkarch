@@ -4,9 +4,9 @@
 
 
 
-// Hal debugging functions
+// Hal mcuConfig functions
 
-void linkarch_hal_throwDebugMessage(const char *format, ...);
+void linkarch_hal_mcuInit(void);
 
 
 
