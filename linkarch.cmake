@@ -11,9 +11,6 @@ include_directories(${LINKARCH_INCLUDE_DIR})
 
 add_subdirectory(${LINKARCH_SRC_DIR} ${CMAKE_BINARY_DIR}/linkarch_build)
 
-# TODO: It's is not the best way to handle OS specific code,
-#       but for now it works. In the future
-
 IF(NOT DEFINED TARGET_PLATFORM_OS)
 set(TARGET_PLATFORM_OS "freertos") # ou posix, etc.
 ENDIF()

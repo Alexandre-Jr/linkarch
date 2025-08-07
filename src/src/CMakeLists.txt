@@ -13,6 +13,8 @@ ELSE()
 ENDIF()
 
 
+
+
 IF(NOT DEFINED TARGET_PLATFORM_OS)
     set(TARGET_PLATFORM_OS "freertos") # ou posix, etc.
 ENDIF()
@@ -32,5 +34,6 @@ ELSEIF(TARGET_PLATFORM_OS STREQUAL "pcConsoleDebug")
 ELSE()
     message(FATAL_ERROR "Unsupported TARGET_PLATFORM_OS: ${TARGET_PLATFORM_OS}")
 ENDIF()
+
 
 add_subdirectory(kernel)
