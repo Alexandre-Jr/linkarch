@@ -1,0 +1,16 @@
+#ifndef LINKARCH_FSM_CONFIG
+#define LINKARCH_FSM_CONFIG
+
+
+
+
+// FSM states config
+#define LINKARCH_FSM_MAX_STATE_NAME_LENGTH 16
+
+// FSM events config
+#define LINKARCH_FSM_MAX_EVENT_NAME_LENGTH 16
+
+
+
+
+#endif  // LINKARCH_FSM_CONFIG
