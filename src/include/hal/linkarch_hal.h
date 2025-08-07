@@ -6,6 +6,7 @@
 
 // FSM state header file
 #include "linkarch_hal_debug.h"
+#include "linkarch_hal_mcuConfig.h"
 
 
 

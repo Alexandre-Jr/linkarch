@@ -167,3 +167,10 @@ linkarch_tick_t linkarch_osal_getMsToTick(uint16_t ms)
 {
     return (linkarch_tick_t) LINKARCH_TICK_MS * ms;
 }
+
+void linkarch_osal_delay(linkarch_tick_t ticks)
+{
+
+    usleep(ticks * 1000 / LINKARCH_TICK_MS);
+
+}

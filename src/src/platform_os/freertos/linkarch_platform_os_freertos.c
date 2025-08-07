@@ -105,6 +105,13 @@ linkarch_tick_t linkarch_osal_getMsToTick(uint16_t ms)
 
 }
 
+void linkarch_osal_delay(linkarch_tick_t ticks)
+{
+
+    vTaskDelay(ticks);
+
+}
+
 
 // Standard freeRTOS functions
 
