@@ -1,4 +1,4 @@
-#include "linkarch_platform_os_prosix.h"
+#include "linkarch_platform_os_posix.h"
 
 
 
