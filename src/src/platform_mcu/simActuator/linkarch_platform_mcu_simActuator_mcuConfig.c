@@ -9,8 +9,6 @@
 bool linkarch_hal_mcuInit(void)
 {
     
-    linkarch_hal_throwDebugMessage("MCU initialized successfully.\n");
-
-    return true;
+    return linkarch_clientConnection_init();
 
 }

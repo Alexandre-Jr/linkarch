@@ -4,9 +4,15 @@
 
 
 
+// Standard C libraries
+#include <stdbool.h>
+
+
+
+
 // Hal mcuConfig functions
 
-void linkarch_hal_mcuInit(void);
+bool linkarch_hal_mcuInit(void);
 
 
 

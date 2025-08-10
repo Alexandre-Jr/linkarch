@@ -3,6 +3,7 @@
 
 
 
+/* Kernel config */
 
 // Module config
 #define LINKARCH_MODULE_MAX_NAME_LENGTH 16
@@ -24,6 +25,16 @@
 
 #define LINKARCH_DEBUG_MODE 1
 #define LINKARCH_CONTROLLERTASKCORE 0
+
+
+/* Platform mcu config */
+
+// Sim Actuator config
+#define LINKARCH_SIM_ACTUATOR_LINKARCHSOCKET_PATH "/tmp/linkarchSocket"
+#define LINKARCH_SIM_ACTUATOR_LINKSERVERSOCKET_PATH "/tmp/linkserverSocket"
+
+#define LINKARCH_SIM_ACTUATOR_HANDSHAKE_MESSAGE "LINKARCH"
+
 
 
 

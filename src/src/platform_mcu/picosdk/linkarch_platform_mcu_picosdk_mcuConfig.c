@@ -6,7 +6,7 @@
 
 // Hal mcuConfig functions
 
-void linkarch_hal_mcuInit(void)
+bool linkarch_hal_mcuInit(void)
 {
 
     stdio_init_all();
