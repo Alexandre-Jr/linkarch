@@ -6,10 +6,10 @@
 
 // Hal gpio functions
 
-bool linkarch_hal_gpio_init(uint8_t pinNumber)
+bool linkarch_hal_gpio_init(uint8_t pinNumber, uint8_t pinMode)
 {
 
-    linkarch_hal_throwDebugMessage("GPIO pin %d initialized successfully.\n", pinNumber);
+    linkarch_hal_throwDebugMessage("GPIO pin %d initialized with mode %d successfully.\n", pinNumber, pinMode);
     return true;
 
 }

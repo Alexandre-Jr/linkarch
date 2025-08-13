@@ -4,7 +4,7 @@
 
 // Hal gpio functions
 
-bool linkarch_hal_gpio_init(uint8_t pinNumber, uint8_t pinMode)
+bool linkarch_hal_gpio_init(unit8_t pinNumber, uint8_t pinMode)
 {
 
     gpio_init(pinNumber);
