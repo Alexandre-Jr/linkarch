@@ -4,7 +4,7 @@
 
 
 // Global connection
-linkarch_simConnection_t linkarch_simConnection;
+linkarch_clientConnection_t linkarch_simConnection;
 
 
 
@@ -22,6 +22,20 @@ bool linkarch_clientConnection_init()
         close(linkarch_simConnection.linkarch_socket.socket_fd);
         return false;
     } 
+
+    linkarch_simConnection.sendConnection_mutex = linkarch_osal_createMutex();
+    if(linkarch_simConnection.sendConnection_mutex == LINKARCH_INVALID_MUTEX) {
+        close(linkarch_simConnection.linkarch_socket.socket_fd);
+        close(linkarch_simConnection.linkserver_socket.socket_fd);
+        return false;
+    }
+
+    linkarch_simConnection.receiveConnection_mutex = linkarch_osal_createMutex();
+    if(linkarch_simConnection.receiveConnection_mutex == LINKARCH_INVALID_MUTEX) {
+        close(linkarch_simConnection.linkarch_socket.socket_fd);
+        close(linkarch_simConnection.linkserver_socket.socket_fd);
+        return false;
+    }
 
     if (!linkarch_clientConnection_handshake()) {
         close(linkarch_simConnection.linkarch_socket.socket_fd);
@@ -84,6 +98,8 @@ bool linkarch_clientConnection_initSocketType(linkarch_socket_t * socket_toInit,
     socket_toInit->socket_addr.sun_family = AF_UNIX;
     strncpy(socket_toInit->socket_addr.sun_path, socket_path, sizeof(socket_toInit->socket_addr.sun_path) - 1);
 
+    return true;
+    
 }
 
 bool linkarch_clientConnection_clientSocketBind(linkarch_socket_t * socket_toInit)
@@ -119,12 +135,12 @@ bool linkarch_clientConnection_serverSocketConnect(linkarch_socket_t * socket_to
 
 // Send and receive functions
 
-bool linkarch_clientConnection_sendMessage(linkarch_socket_t * targetSocket, const linkarch_message_t * message)
+bool linkarch_clientConnection_unsafeSendMessage(linkarch_socket_t * targetSocket, const linkarch_message_t * message)
 {
 
-    char * buffer = linkarch_messageToBuffer(message);
+    linkarch_msgData_t buffer = linkarch_messageToBuffer(message);
 
-    if(send(targetSocket->socket_fd, buffer, message->message_length + LINKARCH_MESSAGE_HEADER_SIZE_IN_BYTES, 0) < 0) 
+    if (send(targetSocket->socket_fd, buffer, message->message_dataSize + LINKARCH_MESSAGE_HEADER_SIZE_IN_BYTES, 0) < 0) 
     {
     
         perror("[linkarch client connection]: Failed to send message");
@@ -138,7 +154,28 @@ bool linkarch_clientConnection_sendMessage(linkarch_socket_t * targetSocket, con
 
 }
 
-bool linkarch_clientConnection_receiveMessage(linkarch_socket_t * sourceSocket, linkarch_message_t * message)
+bool linkarch_clientConnection_sendMessage(linkarch_socket_t * targetSocket, const linkarch_message_t * message)
+{
+
+    if(!linkarch_clientConnection_takeSendConnectionMutex()) return false;
+
+    if(!linkarch_clientConnection_unsafeSendMessage(targetSocket, message)) 
+    {
+    
+        linkarch_clientConnection_giveSendConnectionMutex();
+        return false;
+    
+    }
+
+    linkarch_clientConnection_giveSendConnectionMutex();
+
+    linkarch_clientConnection_waitForAck();
+
+    return true;
+
+}
+
+bool linkarch_clientConnection_unsafeReceiveMessage(linkarch_socket_t * sourceSocket, linkarch_message_t * message)
 {
 
     uint8_t header[LINKARCH_MESSAGE_HEADER_SIZE_IN_BYTES];
@@ -148,34 +185,67 @@ bool linkarch_clientConnection_receiveMessage(linkarch_socket_t * sourceSocket, 
     {
     
         perror("[linkarch client connection]: Failed to receive message header");
+
         return false;
     
     }
 
     message->message_type = header[0];
-    message->message_length = header[1];
+    if( message->message_type >= LINKARCH_NUMBER_OF_MESSAGE_TYPES) 
+    {
 
-    if (message->message_length < 0) 
+        linkarch_clientConnection_clearSocketBuffer(sourceSocket);
+        
+        return false;
+    
+    }
+
+    message->message_dataSize = header[1];
+
+    if (message->message_dataSize <= 0) 
     {
     
-        message->message_length = 0;
+        message->message_dataSize = 0;
         message->message_data = NULL;
+
         return true;
     
     }
 
-    message->message_data = (char *) malloc(message->message_length * sizeof(char));
-    if (message->message_data == NULL) return false;
+    message->message_data = (linkarch_msgData_t) malloc(message->message_dataSize * sizeof(linkarch_msgDataPart_t));
+    if (message->message_data == NULL) 
+    {
 
-    bytes_received = recv(sourceSocket->socket_fd, (void *)message->message_data, message->message_length, 0);
+        return false;
+
+    }
+
+    bytes_received = recv(sourceSocket->socket_fd, (void *)message->message_data, message->message_dataSize, 0);
     if (bytes_received <= 0) 
     {
         
         free((void *)message->message_data);
+
         return false;
         
     }
 
+}
+
+bool linkarch_clientConnection_receiveMessage(linkarch_socket_t * sourceSocket, linkarch_message_t * message)
+{
+
+    linkarch_clientConnection_takeReceiveConnectionMutex();
+
+    if(!linkarch_clientConnection_unsafeReceiveMessage(sourceSocket, message)) 
+    {
+
+        linkarch_clientConnection_giveReceiveConnectionMutex();
+        return false;
+
+    }
+
+    linkarch_clientConnection_giveReceiveConnectionMutex();
     return true;
 
 }
@@ -183,34 +253,28 @@ bool linkarch_clientConnection_receiveMessage(linkarch_socket_t * sourceSocket, 
 bool linkarch_clientConnection_handshake()
 {
 
-    linkarch_message_t handshake_message = HANDSHAKE_MESSAGE_INIT(LINKARCH_SIM_ACTUATOR_HANDSHAKE_MESSAGE);
+    linkarch_message_t handshake_message = HANDSHAKE_MESSAGE_INIT(LINKARCH_SIM_ACTUATOR_HANDSHAKE_MESSAGE, LINKARCH_SIM_ACTUATOR_HANDSHAKE_MESSAGE_SIZE);
 
-    if (!linkarch_clientConnection_sendMessage(&linkarch_simConnection.linkserver_socket, &handshake_message)) 
-    {
-    
-        linkarch_hal_throwDebugMessage("[linkarch client connection]: Handshake failed to send\n");
-        return false;
-    
-    }
+    if (!linkarch_clientConnection_sendMessage(&linkarch_simConnection.linkserver_socket, &handshake_message)) return false;
 
     return true;
 
 }
 
-bool linkarch_clientConnection_sendPUTMessage(const char * data)
+bool linkarch_clientConnection_sendPUTMessage(linkarch_msgData_t data, linkarch_msgDataSize_t dataSize)
 {
 
-    linkarch_message_t put_message = PUT_MESSAGE_INIT(data);
+    linkarch_message_t put_message = PUT_MESSAGE_INIT(data, dataSize);
 
     if (!linkarch_clientConnection_sendMessage(&linkarch_simConnection.linkserver_socket, &put_message)) return false;
 
     return true;
 }
 
-bool linkarch_clientConnection_sendGETMessage(const char * data)
+bool linkarch_clientConnection_sendGETMessage(linkarch_msgData_t data, linkarch_msgDataSize_t dataSize)
 {
 
-    linkarch_message_t get_message = GET_MESSAGE_INIT(data);
+    linkarch_message_t get_message = GET_MESSAGE_INIT(data, dataSize);
 
     if (!linkarch_clientConnection_sendMessage(&linkarch_simConnection.linkserver_socket, &get_message)) return false;
 
@@ -237,25 +301,7 @@ bool linkarch_clientConnection_isConnected()
 
     if (linkarch_simConnection.linkserver_socket.socket_fd < 0) return false;
 
-    linkarch_clientConnection_sendACKMessage();
-    while(!linkarch_clientConnection_isReadyToRead()) 
-    {
-
-        linkarch_clientConnection_sendACKMessage();
-
-    }
-
-    linkarch_message_t message;
-    if (!linkarch_clientConnection_receiveMessage(&linkarch_simConnection.linkserver_socket, &message)) 
-    {
-    
-        linkarch_hal_throwDebugMessage("[linkarch client connection]: Failed to receive ACK message\n");
-        return false;
-    
-    }
-
-    linkarch_freeMessage(&message);
-    return true;
+    if(!linkarch_clientConnection_sendACKMessage()) return false;    
 
 }
 
@@ -280,30 +326,43 @@ bool linkarch_clientConnection_isReadyToRead()
 
 
 // User functions
-bool linkarch_clientConnection_PUT(const char * sendData)
+bool linkarch_clientConnection_PUT(linkarch_msgData_t sendData, linkarch_msgDataSize_t dataSize)
 {
 
-    if (!linkarch_clientConnection_sendPUTMessage(sendData)) return false;
-
+    if (!linkarch_clientConnection_sendPUTMessage(sendData, dataSize)) return false;
+    
     return true;
 
 }
 
 // receivedData need to be free after use
-bool linkarch_clientConnection_GET(const char * sendData, char ** receivedData)
+bool linkarch_clientConnection_GET(linkarch_msgData_t sendData, linkarch_msgDataSize_t sendDataSize, linkarch_msgData_t * receivedData, linkarch_msgDataSize_t * receivedDataSize)
 {
 
-    if (!linkarch_clientConnection_sendGETMessage(sendData)) return false;
-
+    if(!linkarch_clientConnection_sendGETMessage(sendData, sendDataSize)) return false;
+    
     // Timeout
-    linkarch_tick_t startTimeTick = linkarch_osal_getTickCount();
-    while(!linkarch_clientConnection_isReadyToRead()) 
+
+    bool responseReceived = false;
+    for (uint8_t numberOfRetransmission = 0; numberOfRetransmission < LINKARCH_MAX_NUMBER_OF_RETRANSMISSIONS; numberOfRetransmission++) 
     {
 
-        if (!linkarch_clientConnection_sendGETMessage(sendData)) return false;
-        
-        if(linkarch_osal_getTickCount() - startTimeTick >= linkarch_osal_getMsToTick(LINKARCH_MAX_TIME_TO_RECEIVE_RESPONSE_MS)) return false;
+        linkarch_clientConnection_waitForResponse();
 
+        if(linkarch_clientConnection_isReadyToRead()) responseReceived = true;
+
+        if(responseReceived) break;
+
+        if (!linkarch_clientConnection_sendGETMessage(sendData, sendDataSize)) return false;
+
+    }
+    
+    if(!responseReceived) 
+    {
+    
+        linkarch_hal_throwDebugMessage("[linkarch client connection]: No response received after %d retransmissions\n", LINKARCH_MAX_NUMBER_OF_RETRANSMISSIONS);
+        return false;
+    
     }
 
     linkarch_message_t message;
@@ -314,6 +373,7 @@ bool linkarch_clientConnection_GET(const char * sendData, char ** receivedData)
         return false;
     
     }
+    receivedDataSize[0] = message.message_dataSize;
 
     if (message.message_type != LINKARCH_MESSAGE_TYPE_RES) 
     {
@@ -324,7 +384,7 @@ bool linkarch_clientConnection_GET(const char * sendData, char ** receivedData)
     
     }
 
-    *receivedData = (char *) malloc((message.message_length + 1) * sizeof(char));
+    *receivedData = (linkarch_msgData_t) malloc((message.message_dataSize) * sizeof(linkarch_msgDataPart_t));
     if (*receivedData == NULL) 
     {
     
@@ -334,10 +394,13 @@ bool linkarch_clientConnection_GET(const char * sendData, char ** receivedData)
     
     }
 
-    strncpy(*receivedData, message.message_data, message.message_length);
-    (*receivedData)[message.message_length] = '\0';
+    for(unsigned int i = 0; i < message.message_dataSize; i++) 
+    {
 
-    linkarch_freeMessage(&message);
+        (*receivedData)[i] = message.message_data[i];
+    
+    }
+
     return true;
 
 }
@@ -345,20 +408,17 @@ bool linkarch_clientConnection_GET(const char * sendData, char ** receivedData)
 
 // Message handling functions (buffer need to be free after use)
 
-char * linkarch_messageToBuffer(const linkarch_message_t * message)
+linkarch_msgData_t linkarch_messageToBuffer(const linkarch_message_t * message)
 {
 
-    char * buffer = (char *) malloc((message->message_length + LINKARCH_MESSAGE_HEADER_SIZE_IN_BYTES) * sizeof(char));
+    linkarch_msgData_t buffer = (linkarch_msgData_t) malloc((message->message_dataSize + LINKARCH_MESSAGE_HEADER_SIZE_IN_BYTES) * sizeof(linkarch_msgDataPart_t));
 
-    if (buffer == NULL) {
-        perror("[linkarch client connection]: Failed to allocate memory for message buffer");
-        return NULL;
-    }
+    if (buffer == NULL) return NULL;
 
     buffer[0] = message->message_type;
-    buffer[1] = message->message_length;
+    buffer[1] = message->message_dataSize;
 
-    for(unsigned int i = 0; i < message->message_length; i++) {
+    for(unsigned int i = 0; i < message->message_dataSize; i++) {
         buffer[i + LINKARCH_MESSAGE_HEADER_SIZE_IN_BYTES] = message->message_data[i];
     }
 
@@ -374,9 +434,99 @@ bool linkarch_freeMessage(linkarch_message_t * message)
         message->message_data = NULL;
     }
     
-    message->message_length = 0;
+    message->message_dataSize = 0;
     message->message_type = 0;
 
+    return true;
+
+}
+
+
+// Mutex functions
+
+bool linkarch_clientConnection_takeSendConnectionMutex()
+{
+
+    return linkarch_osal_takeMutex(linkarch_simConnection.sendConnection_mutex, LINKARCH_MAX_TIME_TO_GET_MUTEX_MS);
+
+}
+
+bool linkarch_clientConnection_giveSendConnectionMutex()
+{
+
+    return linkarch_osal_giveMutex(linkarch_simConnection.sendConnection_mutex);
+
+}
+
+bool linkarch_clientConnection_takeReceiveConnectionMutex()
+{
+
+    return linkarch_osal_takeMutex(linkarch_simConnection.receiveConnection_mutex, LINKARCH_MAX_TIME_TO_GET_MUTEX_MS);
+
+}
+
+bool linkarch_clientConnection_giveReceiveConnectionMutex()
+{
+
+    return linkarch_osal_giveMutex(linkarch_simConnection.receiveConnection_mutex);
+
+}
+
+// Socket Buffer functions
+
+bool linkarch_clientConnection_clearSocketBuffer(linkarch_socket_t * socket_toClear)
+{
+
+    char buffer[1024];
+    ssize_t bytes_received;
+
+    while(linkarch_clientConnection_isReadyToRead()) 
+    {
+
+        bytes_received = recv(socket_toClear->socket_fd, buffer, sizeof(buffer), 0);
+        if (bytes_received <= 0) break;
+    }
+
+    return true;
+
+}
+
+
+// Waiting functions
+
+bool linkarch_clientConnection_waitForResponse()
+{
+
+    linkarch_tick_t startTimeTick = linkarch_osal_getTickCount();
+
+    while(!linkarch_clientConnection_isReadyToRead()) 
+    {
+        
+        if(linkarch_osal_getTickCount() - startTimeTick >= linkarch_osal_getMsToTick(LINKARCH_MAX_TIME_TO_RECEIVE_RESPONSE_MS)) break;
+
+    }
+
+    return true;
+
+}
+bool linkarch_clientConnection_waitForAck()
+{
+
+    if(!linkarch_clientConnection_waitForResponse()) return false;
+
+    linkarch_message_t message;
+
+    if(!linkarch_clientConnection_receiveMessage(&linkarch_simConnection.linkserver_socket, &message)) return false;
+
+    if(message.message_type != LINKARCH_MESSAGE_TYPE_ACK) 
+    {
+    
+        linkarch_freeMessage(&message);
+        return false;
+    
+    }
+
+    linkarch_freeMessage(&message);
     return true;
 
 }
