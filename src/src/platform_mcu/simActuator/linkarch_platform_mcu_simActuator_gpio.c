@@ -30,12 +30,12 @@ bool linkarch_hal_gpio_read(uint8_t pinNumber)
     if (!linkarch_command_sendGetTypeCommand(&gpioGet_cmd, &temp_receivedData, &receivedDataSize)) return false;
 
     if (receivedDataSize != 1 && temp_receivedData != NULL) {
-        free(&temp_receivedData);
+        free(temp_receivedData);
         return false;
     }
 
-    bool value = (temp_receivedData[0] != 0);
-    free(&temp_receivedData);
+    bool value = temp_receivedData[0];
+    free(temp_receivedData);
     
     return value;
 
@@ -43,6 +43,8 @@ bool linkarch_hal_gpio_read(uint8_t pinNumber)
 
 bool linkarch_hal_gpio_put(uint8_t pinNumber, bool value)
 {
+
+    printf("[linkarch hal gpio]: Setting pin %d to %d\n", pinNumber, value);
     
     linkarch_msgDataPart_t gpioSet_data[2] = {pinNumber, value};
     linkarch_command_t gpioSet_cmd = PUT_COMMAND_INIT(GPIO_SET_CMD_ID, 2, gpioSet_data);

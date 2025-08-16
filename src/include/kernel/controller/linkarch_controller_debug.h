@@ -33,24 +33,4 @@ void linkarch_controller_debug_controllerInfos(const linkarch_controller_t *cont
 
 
 
-// Debugging Macros
-#if LINKARCH_DEBUG_MODE
-#define LINKARCH_DEBUG_MESSAGE(message) \
-    linkarch_controller_debug_takeDebugMessageMutex(); \
-    linkarch_hal_throwDebugMessage("%s\n", message); \
-    linkarch_controller_debug_giveDebugMessageMutex();
-#define LINKARCH_DEBUG_FUNCTION(function) \
-    linkarch_controller_debug_takeDebugMessageMutex(); \
-    function;   \
-    linkarch_controller_debug_giveDebugMessageMutex();
-#else
-#define LINKARCH_DEBUG_MESSAGE(message) \
-    do { } while (0)
-#define LINKARCH_DEBUG_FUNCTION(function) \
-    do { } while (0)
-#endif // LINKARCH_DEBUG_MODE
-
-
-
-
 #endif // LINKARCH_CONTROLLER_DEBUG

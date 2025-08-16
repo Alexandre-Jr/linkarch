@@ -62,7 +62,7 @@ bool linkarch_clientConnection_initClientSocket(linkarch_socket_t * socket_toIni
 
     }
 
-    linkarch_hal_throwDebugMessage("[linkarch client connection]: Linkarch socket initialized at %s\n", socket_toInit->socket_addr.sun_path);
+    LINKARCH_MESSAGE("[linkarch client connection]: Linkarch socket initialized at %s", socket_toInit->socket_addr.sun_path);
 
     return true;
 
@@ -82,7 +82,7 @@ bool linkarch_clientConnection_initServerSocket(linkarch_socket_t * socket_toIni
 
     }
 
-    linkarch_hal_throwDebugMessage("[linkarch client connection]: Linkarch server socket initialized at %s\n", socket_toInit->socket_addr.sun_path);
+    LINKARCH_MESSAGE("[linkarch client connection]: Linkarch server socket initialized at %s", socket_toInit->socket_addr.sun_path);
     
     return true;
 
@@ -180,6 +180,13 @@ bool linkarch_clientConnection_unsafeReceiveMessage(linkarch_socket_t * sourceSo
 
     uint8_t header[LINKARCH_MESSAGE_HEADER_SIZE_IN_BYTES];
 
+    if(linkarch_clientConnection_isReadyToRead() == false) 
+    {
+    
+        return false;
+    
+    }
+
     ssize_t bytes_received = recv(sourceSocket->socket_fd, header, LINKARCH_MESSAGE_HEADER_SIZE_IN_BYTES, 0);
     if (bytes_received <= 0) 
     {
@@ -189,7 +196,7 @@ bool linkarch_clientConnection_unsafeReceiveMessage(linkarch_socket_t * sourceSo
         return false;
     
     }
-
+    
     message->message_type = header[0];
     if( message->message_type >= LINKARCH_NUMBER_OF_MESSAGE_TYPES) 
     {
@@ -202,7 +209,7 @@ bool linkarch_clientConnection_unsafeReceiveMessage(linkarch_socket_t * sourceSo
 
     message->message_dataSize = header[1];
 
-    if (message->message_dataSize <= 0) 
+    if (message->message_dataSize == 0) 
     {
     
         message->message_dataSize = 0;
@@ -229,6 +236,8 @@ bool linkarch_clientConnection_unsafeReceiveMessage(linkarch_socket_t * sourceSo
         return false;
         
     }
+
+    return true;
 
 }
 
@@ -342,7 +351,7 @@ bool linkarch_clientConnection_GET(linkarch_msgData_t sendData, linkarch_msgData
     if(!linkarch_clientConnection_sendGETMessage(sendData, sendDataSize)) return false;
     
     // Timeout
-
+    
     bool responseReceived = false;
     for (uint8_t numberOfRetransmission = 0; numberOfRetransmission < LINKARCH_MAX_NUMBER_OF_RETRANSMISSIONS; numberOfRetransmission++) 
     {
@@ -360,7 +369,7 @@ bool linkarch_clientConnection_GET(linkarch_msgData_t sendData, linkarch_msgData
     if(!responseReceived) 
     {
     
-        linkarch_hal_throwDebugMessage("[linkarch client connection]: No response received after %d retransmissions\n", LINKARCH_MAX_NUMBER_OF_RETRANSMISSIONS);
+        LINKARCH_MESSAGE("[linkarch client connection]: No response received after %d retransmissions", LINKARCH_MAX_NUMBER_OF_RETRANSMISSIONS);
         return false;
     
     }
@@ -369,7 +378,7 @@ bool linkarch_clientConnection_GET(linkarch_msgData_t sendData, linkarch_msgData
     if (!linkarch_clientConnection_receiveMessage(&linkarch_simConnection.linkserver_socket, &message)) 
     {
     
-        linkarch_hal_throwDebugMessage("[linkarch client connection]: Failed to receive GET response\n");
+        LINKARCH_MESSAGE("[linkarch client connection]: Failed to receive GET response");
         return false;
     
     }
@@ -378,7 +387,7 @@ bool linkarch_clientConnection_GET(linkarch_msgData_t sendData, linkarch_msgData
     if (message.message_type != LINKARCH_MESSAGE_TYPE_RES) 
     {
     
-        linkarch_hal_throwDebugMessage("[linkarch client connection]: Received unexpected message type: %d\n", message.message_type);
+        LINKARCH_MESSAGE("[linkarch client connection]: Received unexpected message type: %d", message.message_type);
         linkarch_freeMessage(&message);
         return false;
     
@@ -401,6 +410,7 @@ bool linkarch_clientConnection_GET(linkarch_msgData_t sendData, linkarch_msgData
     
     }
 
+    linkarch_freeMessage(&message);
     return true;
 
 }
@@ -446,7 +456,7 @@ bool linkarch_freeMessage(linkarch_message_t * message)
 
 bool linkarch_clientConnection_takeSendConnectionMutex()
 {
-
+    
     return linkarch_osal_takeMutex(linkarch_simConnection.sendConnection_mutex, LINKARCH_MAX_TIME_TO_GET_MUTEX_MS);
 
 }
@@ -513,6 +523,7 @@ bool linkarch_clientConnection_waitForAck()
 {
 
     if(!linkarch_clientConnection_waitForResponse()) return false;
+    if(!linkarch_clientConnection_isReadyToRead()) return false;
 
     linkarch_message_t message;
 

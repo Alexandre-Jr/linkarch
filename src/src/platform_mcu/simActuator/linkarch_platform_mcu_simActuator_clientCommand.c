@@ -36,13 +36,7 @@ bool linkarch_command_sendGetTypeCommand(const linkarch_command_t * command, lin
 
     if (!linkarch_command_commandToMessage(command, &get_message)) return false;
 
-    if (!linkarch_clientConnection_GET(get_message.message_data, get_message.message_dataSize, receivedData, receivedDataSize)) 
-    {
-
-        linkarch_freeMessage(&get_message);
-        return false;
-
-    }
+    if (!linkarch_clientConnection_GET(get_message.message_data, get_message.message_dataSize, receivedData, receivedDataSize)) return false;
 
     linkarch_freeMessage(&get_message);
     return true;
