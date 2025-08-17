@@ -15,7 +15,7 @@
 
 /* Debugging functions for controller */
 
-static void linkarch_controller_debug_setDebugMessageMutex();
+void linkarch_controller_debug_setDebugMessageMutex();
 bool linkarch_controller_debug_takeDebugMessageMutex();
 bool linkarch_controller_debug_giveDebugMessageMutex();
 

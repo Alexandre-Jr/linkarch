@@ -567,7 +567,7 @@ static bool linkarch_controller_scheduler_releaseModuleLoopMutex(linkarch_module
 
 /* Debugging functions for controller */
 
-static void linkarch_controller_debug_setDebugMessageMutex()
+void linkarch_controller_debug_setDebugMessageMutex()
 {
 
     #if (LINKARCH_DEBUG_MODE)
