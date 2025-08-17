@@ -2,7 +2,7 @@
 #include "linkarch_platform_mcu_simActuator_clientCommand.h"
 
 
-#include <string.h>
+
 
 // Hal gpio functions
 

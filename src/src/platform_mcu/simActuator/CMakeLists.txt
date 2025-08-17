@@ -3,7 +3,8 @@ add_library(linkarch_platform_mcu STATIC    linkarch_platform_mcu_simActuator_cl
                                             linkarch_platform_mcu_simActuator_clientCommand.c
                                             linkarch_platform_mcu_simActuator_debug.c
                                             linkarch_platform_mcu_simActuator_mcuConfig.c
-                                            linkarch_platform_mcu_simActuator_gpio.c)
+                                            linkarch_platform_mcu_simActuator_gpio.c
+                                            linkarch_platform_mcu_simActuator_pwm.c)
 
 # Link the project target to the libraries 
 target_link_libraries(linkarch_platform_mcu PUBLIC)

@@ -8,6 +8,7 @@
 #include "linkarch_hal_debug.h"
 #include "linkarch_hal_mcuConfig.h"
 #include "linkarch_hal_gpio.h"
+#include "linkarch_hal_pwm.h"
 
 
 
