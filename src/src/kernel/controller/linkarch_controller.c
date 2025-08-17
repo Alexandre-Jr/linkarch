@@ -147,7 +147,7 @@ static bool linkarch_controller_configModules(const linkarch_controller_t * cont
 
     if (!linkarch_controller_isControllerValid(controller)) return false;
 
-    for (uint8_t i = 0; i < LINKARCH_CONTROLLER_NUMBER_OF_MODES; i++) 
+    for (uint8_t i = 0; i < LINKARCH_CONTROLLER_NUMBER_OF_MODULES; i++) 
     {
     
         if (!linkarch_controller_configModule(controller, i)) return false;
@@ -187,7 +187,7 @@ static bool linkarch_controller_configModulesMutex(linkarch_controller_t * contr
 
     if (!linkarch_controller_isControllerValid(controller)) return false;
 
-    for(uint8_t i = 0; i < LINKARCH_CONTROLLER_NUMBER_OF_MODES; i++) 
+    for(uint8_t i = 0; i < LINKARCH_CONTROLLER_NUMBER_OF_MODULES; i++) 
     {
     
         linkarch_module_t * module = linkarch_controller_getModuleByID(controller, i);
