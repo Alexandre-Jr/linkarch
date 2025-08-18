@@ -12,7 +12,7 @@ bool linkarch_command_sendPutTypeCommand(const linkarch_command_t * command)
 {
 
     linkarch_message_t put_message;
-
+    
     if (!linkarch_command_commandToMessage(command, &put_message)) return false;
 
     if (!linkarch_clientConnection_PUT(put_message.message_data, put_message.message_dataSize)) 
@@ -22,7 +22,7 @@ bool linkarch_command_sendPutTypeCommand(const linkarch_command_t * command)
         return false;
 
     }
-
+   
     linkarch_freeMessage(&put_message);
     return true;
 
@@ -49,22 +49,15 @@ bool linkarch_command_sendGetTypeCommand(const linkarch_command_t * command, lin
 bool linkarch_command_commandToMessage(const linkarch_command_t * command, linkarch_message_t * message)
 {
 
+    if (command == NULL || message == NULL) return false;
+
     linkarch_message_t temp_message = LINKARCH_MESSAGE_INIT(
         (command->cmd_type == PUT_CMD_TYPE) ? LINKARCH_MESSAGE_TYPE_PUT : LINKARCH_MESSAGE_TYPE_GET,
         NULL,
         command->cmd_dataSize + 1
     );
 
-    if (command->cmd_dataSize <= 0) 
-    {
-
-        temp_message.message_data = NULL;
-        *message = temp_message;
-        return true;
-
-    }
-
-    temp_message.message_data = (linkarch_msgData_t) malloc((command->cmd_dataSize + 1) * sizeof(linkarch_msgDataPart_t));
+    temp_message.message_data = (linkarch_msgData_t) malloc((temp_message.message_dataSize) * sizeof(linkarch_msgDataPart_t));
 
     if (temp_message.message_data == NULL) return false;
 
@@ -95,3 +88,10 @@ uint8_t linkarch_getDecimalPart(float value)
     return (uint8_t)((value - (uint8_t)value) * 100 + 0.5);
 
 } 
+
+float linkarch_getFloatFromParts(uint8_t integerPart, uint8_t decimalPart)
+{
+
+    return (float)integerPart + (float)decimalPart / 100.0f;
+
+}

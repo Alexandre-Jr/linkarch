@@ -69,8 +69,9 @@ bool linkarch_command_commandToMessage(const linkarch_command_t * command, linka
 
 uint8_t linkarch_getIntegerPart(float value);
 
-uint8_t linkarch_getDecimalPart(float value);   // Always returns 2 decimal places, so the value is multiplied by 100
+uint8_t linkarch_getDecimalPart(float value);
 
+float linkarch_getFloatFromParts(uint8_t integerPart, uint8_t decimalPart);
 
 
 /* Macros */

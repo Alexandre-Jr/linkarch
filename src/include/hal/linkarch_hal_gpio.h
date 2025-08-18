@@ -30,6 +30,13 @@ bool linkarch_hal_gpio_read(uint8_t pinNumber);
 bool linkarch_hal_gpio_put(uint8_t pinNumber, bool value);
 
 
+/* ADC Functions */
+
+bool linkarch_hal_gpio_adc_init(void);
+bool linkarch_hal_gpio_adc_initPin(uint8_t pinNumber);
+float linkarch_hal_gpio_adc_read(uint8_t pinNumber);
+
+
 
 
 #endif  // LINKARCH_HAL_GPIO
