@@ -81,3 +81,17 @@ bool linkarch_command_commandToMessage(const linkarch_command_t * command, linka
     return true;
 
 }
+
+uint8_t linkarch_getIntegerPart(float value)
+{
+
+    return (uint8_t)value;
+
+}
+
+uint8_t linkarch_getDecimalPart(float value)
+{
+
+    return (uint8_t)((value - (uint8_t)value) * 100 + 0.5);
+
+} 

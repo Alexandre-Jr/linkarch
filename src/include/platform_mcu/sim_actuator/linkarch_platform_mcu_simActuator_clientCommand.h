@@ -39,6 +39,16 @@ typedef struct
 
 } linkarch_command_t;
 
+// Sizes
+
+#define LINKARCH_BOOL_SIZE 1
+#define LINKARCH_UINT8_SIZE 1
+#define LINKARCH_UINT16_SIZE 2
+#define LINKARCH_UINT32_SIZE 4
+#define LINKARCH_UINT64_SIZE 8
+#define LINKARCH_FLOAT_SIZE 2
+
+
 
 
 
@@ -57,6 +67,9 @@ bool linkarch_command_sendGetTypeCommand(const linkarch_command_t * command, lin
 // Message need to be free after use
 bool linkarch_command_commandToMessage(const linkarch_command_t * command, linkarch_message_t * message);
 
+uint8_t linkarch_getIntegerPart(float value);
+
+uint8_t linkarch_getDecimalPart(float value);   // Always returns 2 decimal places, so the value is multiplied by 100
 
 
 
