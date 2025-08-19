@@ -38,15 +38,10 @@ typedef uint8_t spi_instance_t;
 /* SPI Functions */
 
 bool linkarch_hal_spi_init(spi_instance_t spiNumber, uint32_t baudRate);
-
 bool linkarch_hal_spi_setFormat(spi_instance_t spiNumber, uint8_t dataBits, uint8_t clockPolarity, uint8_t clockPhase, uint8_t bitOrder);
-
 bool linkarch_hal_spi_setFunction(uint8_t pinNumber, uint8_t function);
-
 uint8_t linkarch_hal_spi_write(spi_instance_t spiNumber, const uint8_t *data, uint8_t length);
-
 uint8_t linkarch_hal_spi_read(spi_instance_t spiNumber, uint8_t *data, uint8_t length);
-
 uint8_t linkarch_hal_spi_writeRead(spi_instance_t spiNumber, const uint8_t *dataOut, uint8_t *dataIn, uint8_t length);
 
 

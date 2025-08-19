@@ -4,6 +4,8 @@
 // Sim Actuator Includes
 #include "linkarch_platform_mcu_simActuator_clientConnection.h"
 
+// Osal
+#include "linkarch_osal.h"
 
 
 
@@ -12,6 +14,10 @@
 bool linkarch_hal_mcuInit(void)
 {
     
-    return linkarch_clientConnection_init();
+    if(!linkarch_clientConnection_init()) return false;
+
+    linkarch_osal_delayMs(100);
+
+    return true;
 
 }

@@ -48,7 +48,7 @@ bool linkarch_hal_gpio_put(uint8_t pinNumber, bool value)
     linkarch_command_t gpioSet_cmd = PUT_COMMAND_INIT(GPIO_SET_CMD_ID, 2, gpioSet_data);
 
     if(!linkarch_command_sendPutTypeCommand(&gpioSet_cmd)) return false;
-    
+ 
     return true;
 
 }
