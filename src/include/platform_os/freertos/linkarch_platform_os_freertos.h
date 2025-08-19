@@ -67,6 +67,7 @@ bool linkarch_osal_delayUntil(linkarch_tick_t *lastWakeTime, linkarch_tick_t per
 linkarch_tick_t linkarch_osal_getTickCount();
 linkarch_tick_t linkarch_osal_getMsToTick(uint16_t ms);
 void linkarch_osal_delay(linkarch_tick_t ticks);
+void linkarch_osal_delayMs(uint32_t ms);
 
 
 // User replace functions

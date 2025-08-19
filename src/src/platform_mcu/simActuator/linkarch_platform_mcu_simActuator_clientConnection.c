@@ -310,6 +310,8 @@ bool linkarch_clientConnection_isConnected()
 
     if(!linkarch_clientConnection_sendACKMessage()) return false;    
 
+    return true;
+
 }
 
 bool linkarch_clientConnection_isReadyToRead()

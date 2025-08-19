@@ -9,6 +9,7 @@
 #include "linkarch_hal_mcuConfig.h"
 #include "linkarch_hal_gpio.h"
 #include "linkarch_hal_pwm.h"
+#include "linkarch_hal_spi.h"
 
 
 

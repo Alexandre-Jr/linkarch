@@ -11,6 +11,21 @@ include_directories(${LINKARCH_INCLUDE_DIR})
 
 add_subdirectory(${LINKARCH_SRC_DIR} ${CMAKE_BINARY_DIR}/linkarch_build)
 
+IF(NOT DEFINED TARGET_PLATFORM_MCU)
+    set(TARGET_PLATFORM_MCU "picosdk") # ou posix, etc.
+ENDIF()
+
+IF(TARGET_PLATFORM_MCU STREQUAL "pcConsoleDebug")
+    target_compile_definitions(linkarch_controller INTERFACE TARGET_MCU_PCCONSOLEDEBUG)
+ELSEIF(TARGET_PLATFORM_MCU STREQUAL "picosdk")
+    target_compile_definitions(linkarch_controller INTERFACE TARGET_MCU_PICOSDK)
+ELSEIF(TARGET_PLATFORM_MCU STREQUAL "simActuator")
+    target_compile_definitions(linkarch_controller INTERFACE TARGET_MCU_SIMACTUATOR)
+ELSE()
+    message(FATAL_ERROR "Unsupported TARGET_PLATFORM_MCU: ${TARGET_PLATFORM_MCU}")
+ENDIF()
+
+
 IF(NOT DEFINED TARGET_PLATFORM_OS)
 set(TARGET_PLATFORM_OS "freertos") # ou posix, etc.
 ENDIF()

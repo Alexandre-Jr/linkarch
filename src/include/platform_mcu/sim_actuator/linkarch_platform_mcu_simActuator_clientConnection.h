@@ -1,5 +1,5 @@
-#ifndef LINKARCH_PLATFORM_MCU_CLIENTCONNECTION
-#define LINKARCH_PLATFORM_MCU_CLIENTCONNECTION
+#ifndef LINKARCH_PLATFORM_MCU_SA_CLIENTCONNECTION
+#define LINKARCH_PLATFORM_MCU_SA_CLIENTCONNECTION
 
 
 
@@ -55,7 +55,7 @@ typedef struct
     linkarch_msgDataSize_t message_dataSize;
     linkarch_msgData_t message_data;
 
-} linkarch_message_t;
+}   linkarch_message_t;
 
 typedef enum
 {
@@ -177,4 +177,4 @@ bool linkarch_clientConnection_waitForAck();
 
 
 
-#endif  // LINKARCH_PLATFORM_MCU_CLIENTCONNECTION
+#endif  // LINKARCH_PLATFORM_MCU_SA_CLIENTCONNECTION

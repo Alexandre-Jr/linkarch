@@ -43,8 +43,6 @@ bool linkarch_hal_gpio_read(uint8_t pinNumber)
 
 bool linkarch_hal_gpio_put(uint8_t pinNumber, bool value)
 {
-
-    printf("[linkarch hal gpio]: Setting pin %d to %d\n", pinNumber, value);
     
     linkarch_msgDataPart_t gpioSet_data[2] = {pinNumber, value};
     linkarch_command_t gpioSet_cmd = PUT_COMMAND_INIT(GPIO_SET_CMD_ID, 2, gpioSet_data);
