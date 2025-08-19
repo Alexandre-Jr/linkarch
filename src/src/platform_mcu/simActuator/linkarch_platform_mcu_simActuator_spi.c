@@ -12,9 +12,11 @@ bool linkarch_hal_spi_init(spi_instance_t spiNumber, uint32_t baudRate)
     
     linkarch_msgDataPart_t spiInit_data[data_size];
     
-    spiInit_data[0] = (uint8_t)spiNumber; // Cast to uint8_t for pin number
-    spiInit_data[1] = linkarch_getIntegerPart(baudRate);
-    spiInit_data[2] = linkarch_getDecimalPart(baudRate);
+    spiInit_data[0] = (uint8_t)spiNumber;
+    spiInit_data[1] = (uint8_t)(baudRate & 0xFF);
+    spiInit_data[2] = (uint8_t)((baudRate >> 8) & 0xFF);
+    spiInit_data[3] = (uint8_t)((baudRate >> 16) & 0xFF);
+    spiInit_data[4] = (uint8_t)((baudRate >> 24) & 0xFF);
 
     linkarch_command_t spiInit_cmd = PUT_COMMAND_INIT(SPI_INIT_CMD_ID, data_size, spiInit_data);
 
@@ -66,14 +68,16 @@ bool linkarch_hal_spi_setFunction(uint8_t pinNumber, uint8_t function)
 uint8_t linkarch_hal_spi_write(spi_instance_t spiNumber, const uint8_t *data, uint8_t length)
 {
 
-    linkarch_msgDataSize_t data_size = LINKARCH_UINT8_SIZE + length;
+    linkarch_msgDataSize_t data_size = 2*LINKARCH_UINT8_SIZE + length * LINKARCH_UINT8_SIZE;
 
     linkarch_msgDataPart_t spiWrite_data[data_size];
 
     spiWrite_data[0] = (uint8_t)spiNumber;
+    spiWrite_data[1] = length;
+
     for (uint8_t i = 0; i < length; i++)
     {
-        spiWrite_data[i + 1] = data[i];
+        spiWrite_data[i + 2] = data[i];
     }
 
     linkarch_command_t spiWrite_cmd = PUT_COMMAND_INIT(SPI_WRITE_CMD_ID, data_size, spiWrite_data);
@@ -108,20 +112,31 @@ uint8_t linkarch_hal_spi_read(spi_instance_t spiNumber, uint8_t *data, uint8_t l
 uint8_t linkarch_hal_spi_writeRead(spi_instance_t spiNumber, const uint8_t *dataOut, uint8_t *dataIn, uint8_t length)
 {
 
-    linkarch_msgDataSize_t data_size = LINKARCH_UINT8_SIZE + 2 * length;
+    linkarch_msgDataSize_t data_size = LINKARCH_UINT8_SIZE + LINKARCH_UINT8_SIZE + length * LINKARCH_UINT8_SIZE;
 
     linkarch_msgDataPart_t spiWriteRead_data[data_size];
 
     spiWriteRead_data[0] = (uint8_t)spiNumber;
+    spiWriteRead_data[1] = length;
+
     for (uint8_t i = 0; i < length; i++)
     {
-        spiWriteRead_data[i + 1] = dataOut[i];
-        spiWriteRead_data[i + 1 + length] = 0;
+        spiWriteRead_data[i + 2] = dataOut[i];
     }
 
-    linkarch_command_t spiWriteRead_cmd = PUT_COMMAND_INIT(SPI_WRITE_READ_CMD_ID, data_size, spiWriteRead_data);
+    linkarch_command_t spiWriteRead_cmd = GET_COMMAND_INIT(SPI_WRITE_READ_CMD_ID, data_size, spiWriteRead_data);
 
-    if (!linkarch_command_sendGetTypeCommand(&spiWriteRead_cmd, &dataIn, &length)) return 0;
+    linkarch_msgData_t temp_dataIn;
+    linkarch_msgDataSize_t temp_dataInSize = 0;
+
+    if (!linkarch_command_sendGetTypeCommand(&spiWriteRead_cmd, &temp_dataIn, &temp_dataInSize)) return 0;
+
+    for(uint8_t i = 0; i < temp_dataInSize; i++)
+    {
+        dataIn[length - temp_dataInSize + i] = temp_dataIn[i];
+    }
+
+    free(temp_dataIn);
 
     return length;
 
