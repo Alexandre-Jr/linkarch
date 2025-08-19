@@ -167,6 +167,8 @@ bool linkarch_clientConnection_sendMessage(linkarch_socket_t * targetSocket, con
     
     }
 
+    linkarch_clientConnection_waitForAck();
+
     linkarch_clientConnection_giveSendConnectionMutex();
 
     return true;
