@@ -112,6 +112,12 @@ void linkarch_osal_delay(linkarch_tick_t ticks)
 
 }
 
+void linkarch_osal_delayMs(uint32_t ms)
+{
+
+    vTaskDelay(pdMS_TO_TICKS(ms));
+
+}
 
 // Standard freeRTOS functions
 
