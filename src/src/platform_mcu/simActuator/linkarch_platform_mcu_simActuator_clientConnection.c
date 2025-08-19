@@ -355,7 +355,7 @@ bool linkarch_clientConnection_GET(linkarch_msgData_t sendData, linkarch_msgData
     // Timeout
     
     bool responseReceived = false;
-    for (uint8_t numberOfRetransmission = 0; numberOfRetransmission < LINKARCH_MAX_NUMBER_OF_RETRANSMISSIONS; numberOfRetransmission++) 
+    for (uint8_t trys = 0; trys < LINKARCH_MAX_TRYS_TO_RECEIVE_GET_RESPONSE; trys++) 
     {
 
         linkarch_clientConnection_waitForResponse();
@@ -371,7 +371,7 @@ bool linkarch_clientConnection_GET(linkarch_msgData_t sendData, linkarch_msgData
     if(!responseReceived) 
     {
     
-        LINKARCH_MESSAGE("[linkarch client connection]: No response received after %d retransmissions", LINKARCH_MAX_NUMBER_OF_RETRANSMISSIONS);
+        LINKARCH_MESSAGE("[linkarch client connection]: No response received after %d trys", LINKARCH_MAX_TRYS_TO_RECEIVE_GET_RESPONSE);
         return false;
     
     }
