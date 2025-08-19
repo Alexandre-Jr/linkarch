@@ -324,7 +324,7 @@ bool linkarch_clientConnection_isReadyToRead()
     FD_SET(linkarch_simConnection.linkserver_socket.socket_fd, &read_fds);
 
     timeout.tv_sec = 0;
-    timeout.tv_usec = 100000;
+    timeout.tv_usec = LINKARCH_TIMEOUT_READYTOREAD_US;
 
     int result = select(linkarch_simConnection.linkserver_socket.socket_fd + 1, &read_fds, NULL, NULL, &timeout);
 
