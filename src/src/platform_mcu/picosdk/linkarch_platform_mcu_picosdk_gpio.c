@@ -24,8 +24,6 @@ bool linkarch_hal_gpio_read(uint8_t pinNumber)
 
     return gpio_get(pinNumber);
 
-    return true;
-
 }
 
 bool linkarch_hal_gpio_put(uint8_t pinNumber, bool value)
