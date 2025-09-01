@@ -130,6 +130,12 @@ uint8_t linkarch_hal_spi_writeRead(spi_instance_t spiNumber, const uint8_t *data
     linkarch_msgDataSize_t temp_dataInSize = 0;
 
     if (!linkarch_command_sendGetTypeCommand(&spiWriteRead_cmd, &temp_dataIn, &temp_dataInSize)) return 0;
+    if (temp_dataInSize > length) 
+    {
+        free(temp_dataIn);
+        return 0; 
+    }
+
 
     for(uint8_t i = 0; i < temp_dataInSize; i++)
     {
