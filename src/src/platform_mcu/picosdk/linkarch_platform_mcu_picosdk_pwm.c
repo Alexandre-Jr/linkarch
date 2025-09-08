@@ -29,6 +29,8 @@ bool linkarch_hal_pwm_initPWM(uint8_t pinNumber, float clkDiv, float freq, float
     pwm_set_chan_level(slice_num, chan_num, chan_level);
     pwm_set_enabled(slice_num, true);
 
+    return true;
+
 }
 
 void linkarch_hal_pwm_reConfig(uint8_t pinNumber, float clkDiv, float freq, float dutyCycle_percent)
