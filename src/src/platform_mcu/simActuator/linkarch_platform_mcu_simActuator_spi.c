@@ -13,10 +13,7 @@ bool linkarch_hal_spi_init(spi_instance_t spiNumber, uint32_t baudRate)
     linkarch_msgDataPart_t spiInit_data[data_size];
     
     spiInit_data[0] = (uint8_t)spiNumber;
-    spiInit_data[1] = (uint8_t)(baudRate & 0xFF);
-    spiInit_data[2] = (uint8_t)((baudRate >> 8) & 0xFF);
-    spiInit_data[3] = (uint8_t)((baudRate >> 16) & 0xFF);
-    spiInit_data[4] = (uint8_t)((baudRate >> 24) & 0xFF);
+    memcpy(&spiInit_data[1], &baudRate, LINKARCH_UINT32_SIZE);
 
     linkarch_command_t spiInit_cmd = PUT_COMMAND_INIT(SPI_INIT_CMD_ID, data_size, spiInit_data);
 
