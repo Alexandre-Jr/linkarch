@@ -14,6 +14,7 @@ bool linkarch_hal_gpio_init(uint8_t pinNumber, uint8_t pinMode)
 
     gpio_init(pinNumber);
     gpio_set_dir(pinNumber, pinMode);
+    gpio_set_pulls(pinNumber, false, false);
 
     return true;
 
