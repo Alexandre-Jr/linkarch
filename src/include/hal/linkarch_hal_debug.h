@@ -30,9 +30,7 @@ void linkarch_hal_throwDebugMessage(const char *format, ...);
 #endif // LINKARCH_DEBUG_MODE
 
 #define LINKARCH_MESSAGE(format, ...) \
-    linkarch_controller_debug_takeDebugMessageMutex(); \
-    linkarch_hal_throwDebugMessage(format "\n", ##__VA_ARGS__); \
-    linkarch_controller_debug_giveDebugMessageMutex(); \
+    printf(format "\n", ##__VA_ARGS__) // TODO: Replace with platform-specific output function
 
 
 

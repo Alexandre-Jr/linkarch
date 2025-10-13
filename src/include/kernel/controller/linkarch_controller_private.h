@@ -22,7 +22,7 @@ static bool linkarch_controller_handleModeTransition(linkarch_modeTransition_id_
 // Config functions
 
 static void linkarch_setGlobalFSMToControllerFSM(linkarch_controller_t * controller, linkarch_mode_id_t initialModeID);
-static bool linkarch_controller_configModules();
+static bool linkarch_controller_configModules(const linkarch_controller_t * controller);
 static bool linkarch_controller_configModule(const linkarch_controller_t * controller, linkarch_module_id_t moduleID);
 static bool linkarch_controller_configModeTrasitionQueue(linkarch_controller_t * controller);
 static bool linkarch_controller_configModulesMutex(linkarch_controller_t * controller);
