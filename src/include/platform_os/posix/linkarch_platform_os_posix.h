@@ -84,6 +84,7 @@ bool linkarch_osal_giveMutex(linkarch_semaphorehandle_t mutex);
 bool linkarch_osal_delayUntil(linkarch_tick_t *lastWakeTime, linkarch_tick_t period);
 linkarch_tick_t linkarch_osal_getTickCount();
 linkarch_tick_t linkarch_osal_getMsToTick(uint16_t ms);
+uint32_t linkarch_osal_getTickToMs(linkarch_tick_t ticks);
 void linkarch_osal_delay(linkarch_tick_t ticks);
 void linkarch_osal_delayMs(uint32_t ms);
 

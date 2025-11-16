@@ -168,6 +168,13 @@ linkarch_tick_t linkarch_osal_getMsToTick(uint16_t ms)
     return (linkarch_tick_t) LINKARCH_TICK_MS * ms;
 }
 
+uint32_t linkarch_osal_getTickToMs(linkarch_tick_t ticks)
+{
+
+    return (uint32_t)ticks / (uint32_t)LINKARCH_TICK_MS;
+
+}
+
 void linkarch_osal_delay(linkarch_tick_t ticks)
 {
 
