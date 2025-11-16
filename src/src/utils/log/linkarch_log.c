@@ -61,53 +61,48 @@ bool linkarch_log_close(linkarch_log * log)
 
 // Log message functions
 
-bool linkarch_log_info(linkarch_log * log, linkarch_log_messageContext_t context, const char * format, ...)
+bool linkarch_log_info(linkarch_log * log, linkarch_log_messageContext_t context, const char * message)
 {
 
     if (!linkarch_log_isLogValid(log)) return false;
-
-    return linkarch_log_writeMessage(log, LINKARCH_LOG_SEVERITY_LEVEL_INFO, context, format);
+    return linkarch_log_writeMessage(log, LINKARCH_LOG_SEVERITY_LEVEL_INFO, context, message);
 
 }
 
-bool linkarch_log_warning(linkarch_log * log, linkarch_log_messageContext_t context, const char * format, ...)
+bool linkarch_log_warning(linkarch_log * log, linkarch_log_messageContext_t context, const char * message)
 {
 
     if (!linkarch_log_isLogValid(log)) return false;
-
-    return linkarch_log_writeMessage(log, LINKARCH_LOG_SEVERITY_LEVEL_WARNING, context, format);
+    return linkarch_log_writeMessage(log, LINKARCH_LOG_SEVERITY_LEVEL_WARNING, context, message);
 
 }
 
-bool linkarch_log_error(linkarch_log * log, linkarch_log_messageContext_t context, const char * format, ...)
+bool linkarch_log_error(linkarch_log * log, linkarch_log_messageContext_t context, const char * message)
 {
     
     if (!linkarch_log_isLogValid(log)) return false;
-    return linkarch_log_writeMessage(log, LINKARCH_LOG_SEVERITY_LEVEL_ERROR, context, format);
-
+    return linkarch_log_writeMessage(log, LINKARCH_LOG_SEVERITY_LEVEL_ERROR, context, message);
 }
 
-bool linkarch_log_fatal(linkarch_log * log, linkarch_log_messageContext_t context, const char * format, ...)
+bool linkarch_log_fatal(linkarch_log * log, linkarch_log_messageContext_t context, const char * message)
 {
 
     if (!linkarch_log_isLogValid(log)) return false;
-    return linkarch_log_writeMessage(log, LINKARCH_LOG_SEVERITY_LEVEL_FATAL, context, format);
-
+    return linkarch_log_writeMessage(log, LINKARCH_LOG_SEVERITY_LEVEL_FATAL, context, message);
 }
 
-bool linkarch_log_debug(linkarch_log * log, linkarch_log_messageContext_t context, const char * format, ...)
+bool linkarch_log_debug(linkarch_log * log, linkarch_log_messageContext_t context, const char * message)
 {
 
     if (!linkarch_log_isLogValid(log)) return false;
-    return linkarch_log_writeMessage(log, LINKARCH_LOG_SEVERITY_LEVEL_DEBUG, context, format);
-
+    return linkarch_log_writeMessage(log, LINKARCH_LOG_SEVERITY_LEVEL_DEBUG, context, message);
 }
 
-bool linkarch_log_trace(linkarch_log * log, linkarch_log_messageContext_t context, const char * format, ...)
+bool linkarch_log_trace(linkarch_log * log, linkarch_log_messageContext_t context, const char * message)
 {
 
     if (!linkarch_log_isLogValid(log)) return false;
-    return linkarch_log_writeMessage(log, LINKARCH_LOG_SEVERITY_LEVEL_TRACE, context, format);
+    return linkarch_log_writeMessage(log, LINKARCH_LOG_SEVERITY_LEVEL_TRACE, context, message);
     
 }
 
@@ -159,29 +154,12 @@ bool linkarch_log_giveLogMutex(linkarch_log * log)
 
 }
 
-
-// Format functions
-
-void linkarch_log_formatLogMessageString(char * buffer, size_t bufferSize, const char * format, ...)
-{
-
-    va_list args;
-    va_start(args, format);
-    vsnprintf(buffer, bufferSize, format, args);
-    va_end(args);
-
-}
-
-
 // Write functions
 
-bool linkarch_log_writeMessage(linkarch_log * log, linkarch_log_severityLevel_t severityLevel, linkarch_log_messageContext_t context, const char * format, ...)
+bool linkarch_log_writeMessage(linkarch_log * log, linkarch_log_severityLevel_t severityLevel, linkarch_log_messageContext_t context, const char * message)
 {
-
-    char messageBuffer[LINKARCH_LOG_MAX_MESSAGE_LENGTH];
-    linkarch_log_formatLogMessageString(messageBuffer, sizeof(messageBuffer), format);
     
-    linkarch_log_message_t logMessage = LINKARCH_LOG_MESSAGE_INIT(messageBuffer, context, severityLevel);
+    linkarch_log_message_t logMessage = LINKARCH_LOG_MESSAGE_INIT(message, context, severityLevel);
 
     return linkarch_log_writeLogMessage(log, &logMessage);
 

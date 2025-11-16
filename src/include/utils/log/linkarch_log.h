@@ -25,12 +25,12 @@ bool linkarch_log_close(linkarch_log * log);
 
 // Log message functions
 
-bool linkarch_log_info(linkarch_log * log, linkarch_log_messageContext_t context, const char * format, ...);
-bool linkarch_log_warning(linkarch_log * log, linkarch_log_messageContext_t context, const char * format, ...);
-bool linkarch_log_error(linkarch_log * log, linkarch_log_messageContext_t context, const char * format, ...);
-bool linkarch_log_fatal(linkarch_log * log, linkarch_log_messageContext_t context, const char * format, ...);
-bool linkarch_log_debug(linkarch_log * log, linkarch_log_messageContext_t context, const char * format, ...);
-bool linkarch_log_trace(linkarch_log * log, linkarch_log_messageContext_t context, const char * format, ...);
+bool linkarch_log_info(linkarch_log * log, linkarch_log_messageContext_t context, const char * message);
+bool linkarch_log_warning(linkarch_log * log, linkarch_log_messageContext_t context, const char * message);
+bool linkarch_log_error(linkarch_log * log, linkarch_log_messageContext_t context, const char * message);
+bool linkarch_log_fatal(linkarch_log * log, linkarch_log_messageContext_t context, const char * message);
+bool linkarch_log_debug(linkarch_log * log, linkarch_log_messageContext_t context, const char * message);
+bool linkarch_log_trace(linkarch_log * log, linkarch_log_messageContext_t context, const char * message);
 
 
 

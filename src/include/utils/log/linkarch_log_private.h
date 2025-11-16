@@ -30,12 +30,9 @@ bool linkarch_log_takeLogMutex(linkarch_log * log);
 bool linkarch_log_giveLogMutex(linkarch_log * log);
 
 
-// Format functions
-
-bool linkarch_log_writeMessage(linkarch_log * log, linkarch_log_severityLevel_t severityLevel, linkarch_log_messageContext_t context, const char * format, ...);
-
-
 // Write functions
+
+bool linkarch_log_writeMessage(linkarch_log * log, linkarch_log_severityLevel_t severityLevel, linkarch_log_messageContext_t context, const char * message);
 
 bool linkarch_log_writeLogMessage(linkarch_log * log, const linkarch_log_message_t * logMessage);
 
