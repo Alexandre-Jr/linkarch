@@ -78,6 +78,7 @@ typedef struct linkarch_log
 
 // Macros
 
+#define LINKARCH_LOG_INIT() {false, NULL, NULL, NULL, NULL}
 #define LINKARCH_LOG_MESSAGE_INIT(message, context, severityLevel) {message, context, severityLevel}
 
 
